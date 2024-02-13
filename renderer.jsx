@@ -1,8 +1,8 @@
 import { Renderer } from "@k8slens/extensions";
 import React from "react";
-import { PodPinoLogsMenuItem } from "./src/pod-logs-menu";
+import { PodPinoPrettyLogsMenuItem } from "./src/pod-logs-menu";
 
-export default class PinoLensExtensionRenderer extends Renderer.LensExtension {
+export default class PinoPrettyLensExtensionRenderer extends Renderer.LensExtension {
   onActivate() {}
 
   kubeObjectMenuItems = [
@@ -10,7 +10,7 @@ export default class PinoLensExtensionRenderer extends Renderer.LensExtension {
       kind: "Pod",
       apiVersions: ["v1"],
       components: {
-        MenuItem: props => <PodPinoLogsMenuItem {...props} />
+        MenuItem: props => <PodPinoPrettyLogsMenuItem {...props} />
       }
     }
   ];

@@ -1,51 +1,46 @@
 import { useState, useEffect } from "react";
-import { PodLogs } from "./pod-logs";
+import { Renderer, Common } from "@k8slens/extensions";
+import { getContainersByPodList, showLogs } from "./utils";
 
-/**
- * @typedef {import('@k8slens/extensions').Renderer.K8sApi.Pod} Pod
- */
+const {
+  Component: { MenuItem, Icon, SubMenu, StatusBrick }
+} = Renderer;
 
-/**
- *
- * @param {import('@k8slens/extensions').Renderer.Component.KubeObjectMenuProps<Pod>} props
- */
-export const PodPinoLogsMenuItem = props => {
-  const { object } = props;
+export const PodPinoPrettyLogsMenuItem = props => {
   const [pod, setPod] = useState(null);
   const [containerNames, setContainerNames] = useState(new Set());
 
   useEffect(() => {
-    let isMounted = true;
-    const controller = new AbortController();
-
-    async function fetchData() {
-      try {
-        // Get all containers in the pod
-        const containerNameList = PodLogs.getContainersByPodList(object);
-
-        if (isMounted) {
-          // Update state only if component is still mounted
-          setPod(object);
-          setContainerNames(containerNameList);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
-  }, [object]);
+    const containerNameList = getContainersByPodList(props.object);
+    setPod(props.object);
+    setContainerNames(containerNameList);
+  }, [props.object]);
 
   // Show menu item only if pod has at least 1 container
-  if (!pod || pod.getContainers().length <= 0) {
-    return null;
-  }
+  if (!pod || pod.getContainers().length <= 0) return null;
 
-  // Render menu item UI (and associate onClick action)
-  return PodLogs.uiMenu(props, containerNames, pod.getNs(), pod.getName(), "Logs");
+  return (
+    <MenuItem onClick={Common.Util.prevDefault(() => showLogs(pod.getNs(), pod.getName(), "Logs", Array.from(containerNames)?.slice(-1)[0]))}>
+      <Icon material="subject" interactive={props.toolbar} tooltip="Pino-pretty logs" />
+      <span className="title">Pino-pretty logs</span>
+      {containerNames.size >= 1 && (
+        <>
+          <Icon material="keyboard_arrow_right" />
+          <SubMenu>
+            {Array.from(containerNames).map(containerName => {
+              return (
+                <MenuItem
+                  key={`only_${containerName}`}
+                  onClick={Common.Util.prevDefault(() => showLogs(resourceNs, resourceName, resourceTitle, containerName))}
+                >
+                  <StatusBrick />
+                  <span>{containerName}</span>
+                </MenuItem>
+              );
+            })}
+          </SubMenu>
+        </>
+      )}
+    </MenuItem>
+  );
 };
