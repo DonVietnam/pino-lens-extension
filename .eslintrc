@@ -1,0 +1,22 @@
+{
+	"root": true,
+	"extends": ["eslint:recommended", "plugin:security/recommended", "plugin:prettier/recommended"],
+	"env": {
+		"node": true,
+		"commonjs": true
+	},
+	"parserOptions": {
+		"sourceType": "module",
+		"ecmaVersion": 2022
+	},
+	"rules": {
+		"no-var": ["error"],
+		"no-console": ["error"],
+		"no-unused-vars": ["warn"],
+		"no-trailing-spaces": ["error"],
+		"security/detect-object-injection": ["off"],
+		"security/detect-non-literal-require": ["off"],
+		"security/detect-non-literal-fs-filename": ["off"],
+		"node/no-unpublished-require": 0
+	}
+}
